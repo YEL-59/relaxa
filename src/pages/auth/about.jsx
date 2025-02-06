@@ -13,27 +13,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router';
 import { z } from 'zod';
 
-// Schema for first form
 const aboutSchema = z.object({
   fullname: z.string().min(1, 'Full Name is required'),
   addbio: z.string().min(1, 'Add Bio is required'),
   businessname: z.string().min(1, 'Business Name is required'),
   businessaddress: z.string().min(1, 'Business Address is required'),
+  file: z.instanceof(File, { message: 'File is required' }),
 });
 
-// Schema for second form with file input validation
 const additionalSchema = z.object({
   experience: z.string().min(1, 'Experience is required'),
   skills: z.string().min(1, 'Skills are required'),
-  file: z.any().refine((file) => file && file.length > 0, {
-    message: 'File is required',
-  }),
+  file: z.instanceof(File, { message: 'File is required' }),
 });
 
 export default function About() {
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
+  const [documentPreview, setDocumentPreview] = useState(null);
 
   const form1 = useForm({
     resolver: zodResolver(aboutSchema),
@@ -42,6 +43,7 @@ export default function About() {
       addbio: '',
       businessname: '',
       businessaddress: '',
+      file: null,
     },
   });
 
@@ -49,25 +51,24 @@ export default function About() {
     resolver: zodResolver(additionalSchema),
     defaultValues: {
       experience: '',
-      skills: '',
-      file: null, // Ensure the file is stored in the form
+      file: null,
     },
   });
 
   const onSubmit1 = (data) => {
-    console.table(data);
+    setFormData((prevData) => ({ ...prevData, ...data }));
     setStep(2);
   };
 
   const onSubmit2 = (data) => {
-    console.table(data);
-    alert('Form submitted successfully');
+    const finalData = { ...formData, ...data };
+    console.table(finalData);
   };
 
   return (
-    <div className="flex justify-center items-center gap-10 min-h-[calc(100svh-116px)] container mx-auto ">
+    <div className="flex justify-center items-center gap-10 min-h-[calc(100svh-116px)] container mx-auto">
       <div>
-        <img src={about} alt="Sign Up" className="w-full h-auto " />
+        <img src={about} alt="Sign Up" className="w-full h-auto" />
       </div>
       <div className="px-8 w-full rounded-lg flex flex-col justify-center gap-6">
         <div>
@@ -76,30 +77,63 @@ export default function About() {
             {step === 1 ? 'Tell Us About Yourself' : 'More About You'}
           </h1>
         </div>
-        {/* <div className="mt-6">
-          <FormLabel>Upload License/Certification</FormLabel>
-          <div
-            className="border-2 border-dotted border-gray-500 p-10 max-w-lg bg-gray-200 text-center rounded-md cursor-pointer hover:bg-gray-300 mt-5"
-            onClick={() => document.getElementById('File-upload').click()}
-          >
-            <PlusCircle className="mx-auto text-gray-500 mb-2" size={30} />
-            <span className="text-gray-700">Upload Documents</span>
-            <input
-              id="File-upload"
-              type="file"
-              className="hidden"
-              onChange={(e) => form1.setValue('file', e.target.files[0])}
-            />
-          </div>
-          <FormMessage />
-        </div> */}
+
         {step === 1 && (
           <Form {...form1}>
             <form
               onSubmit={form1.handleSubmit(onSubmit1)}
               className="space-y-4"
             >
-              {/* Form Fields for Step 1 */}
+              <FormField
+                control={form1.control}
+                name="file"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Upload Profile Photo</FormLabel>
+                    <div
+                      className="border-2 border-dotted border-gray-500 p-10 h-36 w-36 flex items-center justify-center bg-gray-200 text-center rounded-full cursor-pointer hover:bg-gray-300 mt-5 relative"
+                      onClick={() =>
+                        document.getElementById('file-upload-step1').click()
+                      }
+                    >
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="h-full w-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <div>
+                          <PlusCircle
+                            className="mx-auto text-muted-foreground"
+                            size={20}
+                          />
+                          <span className="text-muted-foreground truncate text-xs">
+                            Upload Photo
+                          </span>
+                        </div>
+                      )}
+                      <input
+                        id="file-upload-step1"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          form1.setValue('file', file);
+
+                          if (file) {
+                            const imageURL = URL.createObjectURL(file);
+                            setImagePreview(imageURL);
+                          }
+                        }}
+                      />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form1.control}
                 name="fullname"
@@ -174,14 +208,10 @@ export default function About() {
 
         {step === 2 && (
           <Form {...form2}>
-            <h1 className="font-bold text-3xl leading-normal">
-              Share your details
-            </h1>
             <form
               onSubmit={form2.handleSubmit(onSubmit2)}
               className="space-y-4"
             >
-              {/* Form Fields for Step 2 */}
               <FormField
                 control={form2.control}
                 name="experience"
@@ -195,44 +225,91 @@ export default function About() {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form2.control}
-                name="skills"
+                name="file"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Skills</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your skills" {...field} />
-                    </FormControl>
+                    <FormLabel>Upload License/Certification</FormLabel>
+                    <div
+                      className="border-2 border-dotted border-gray-500 p-10 max-w-lg bg-gray-200 text-center rounded-md cursor-pointer hover:bg-gray-300 mt-5"
+                      onClick={() =>
+                        document.getElementById('file-upload-step2').click()
+                      }
+                    >
+                      {documentPreview ? (
+                        <div className="flex flex-col items-center justify-center">
+                          {documentPreview.type.startsWith('image/') ? (
+                            <img
+                              src={documentPreview.url}
+                              alt="Document Preview"
+                              className="max-w-full max-h-60 rounded-md object-contain"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <span className="block font-medium">
+                                {documentPreview.name}
+                              </span>
+                              <a
+                                href={documentPreview.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline mt-2 block"
+                              >
+                                View Document
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <PlusCircle
+                            className="mx-auto text-gray-500 mb-2"
+                            size={30}
+                          />
+                          <span className="text-gray-700">
+                            Upload Documents
+                          </span>
+                        </div>
+                      )}
+
+                      <input
+                        id="file-upload-step2"
+                        type="file"
+                        className="hidden"
+                        accept="application/pdf,image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          form2.setValue('file', file);
+
+                          if (file) {
+                            const fileURL = URL.createObjectURL(file);
+                            setDocumentPreview({
+                              url: fileURL,
+                              name: file.name,
+                              type: file.type,
+                            });
+                          }
+                        }}
+                      />
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="mt-6">
-                <FormLabel>Upload License/Certification</FormLabel>
-                <div
-                  className="border-2 border-dotted border-gray-500 p-10 max-w-lg bg-gray-200 text-center rounded-md cursor-pointer hover:bg-gray-300 mt-5"
-                  onClick={() => document.getElementById('file-upload').click()}
-                >
-                  <PlusCircle
-                    className="mx-auto text-gray-500 mb-2"
-                    size={30}
-                  />
-                  <span className="text-gray-700">Upload Documents</span>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => form2.setValue('file', e.target.files[0])}
-                  />
-                </div>
-                <FormMessage />
-              </div>
-
-              <Button className="w-[168px] h-12" type="submit">
-                Submit
+              <Button
+                className="w-[168px] h-12 mr-5"
+                variant={'outline'}
+                onClick={() => setStep(1)}
+              >
+                Previous
               </Button>
+              <Link to={'/auth/create-profile/review'}>
+                <Button className="w-[168px] h-12" type="submit">
+                  save and next
+                </Button>
+              </Link>
             </form>
           </Form>
         )}

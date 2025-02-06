@@ -36,7 +36,7 @@ const items = [
   },
   {
     title: 'Profile',
-    url: '/profile',
+    url: '/profile/general',
     icon: Search,
   },
 ];

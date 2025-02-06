@@ -1,6 +1,7 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { CircleAlert } from 'lucide-react';
+import { Link } from 'react-router';
 import review from '../../assets/review.png';
 
 export default function Review() {
@@ -33,9 +34,11 @@ export default function Review() {
           </Alert>
 
           <div className="flex justify-center md:justify-start">
-            <Button size="lg" className="w-[10rem]">
-              Go to Home
-            </Button>
+            <Link to="/">
+              <Button size="lg" className="w-[10rem]">
+                Go to Home
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

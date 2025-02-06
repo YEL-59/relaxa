@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarDaysIcon, ChevronDownIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -20,12 +20,13 @@ export function DatePicker() {
         <Button
           variant={'outline'}
           className={cn(
-            'w-[255px] h-[50px] rounded-full bg-background justify-start text-left font-normal border-none',
+            'h-[50px] rounded-full bg-background justify-start text-left font-normal border-none',
             !date && 'text-muted-foreground'
           )}
         >
-          <CalendarIcon />
-          {date ? format(date, 'PPP') : <span>Pick a date</span>}
+          <CalendarDaysIcon className="text-muted-foreground" />
+          {date ? format(date, 'PPPP') : <span>Pick a date</span>}
+          <ChevronDownIcon className="text-muted-foreground" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

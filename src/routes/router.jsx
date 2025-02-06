@@ -1,3 +1,4 @@
+import ProfileLayout from '@/components/dashboard/profile/profile-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import DashboardLayout from '@/layouts/dashboard-layout';
 import About from '@/pages/auth/about';
@@ -7,7 +8,8 @@ import SignIn from '@/pages/auth/sign-in';
 import SignUp from '@/pages/auth/sign-up';
 import Booking from '@/pages/dashboard/booking';
 import Dashboard from '@/pages/dashboard/dashboard';
-import Profile from '@/pages/dashboard/profile';
+import ProfileGeneral from '@/pages/dashboard/profile-general';
+import ProfileSettings from '@/pages/dashboard/profile-settings';
 import Service from '@/pages/dashboard/service';
 import { createBrowserRouter } from 'react-router';
 
@@ -56,7 +58,17 @@ export const router = createBrowserRouter([
       },
       {
         path: 'profile',
-        element: <Profile />,
+        element: <ProfileLayout />,
+        children: [
+          {
+            path: 'general',
+            element: <ProfileGeneral />,
+          },
+          {
+            path: 'settings',
+            element: <ProfileSettings />,
+          },
+        ],
       },
     ],
   },

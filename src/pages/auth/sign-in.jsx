@@ -42,7 +42,7 @@ export default function SignIn() {
       </div>
       <div className="border px-8 w-[460px] h-[660px] rounded-lg flex flex-col justify-center gap-6">
         <div className="space-y-5">
-          <h2 className="font-bold text-3xl leading-normal">Sign Up</h2>
+          <h2 className="font-bold text-3xl leading-normal">Sign In</h2>
           <p className="text-foreground/70 space-x-2">
             <span>New User?</span>
             <Link to="/auth/sign-up" className="font-medium">
